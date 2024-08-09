@@ -1,0 +1,155 @@
+
+
+        // console.log(request.files);
+
+        /* const createdMessage = await prisma.message.create({
+            data: {
+                title,
+                description,
+                files: {
+                    create: files,
+                },
+            },
+            include: {
+                files: true,
+            },
+        });
+
+        io.emit("get-files", {
+            status: "success",
+            data: { title, description, files: createdMessage.files },
+            message: "Files uploaded successfully!",
+        });
+ */
+
+        /* const files = req.files.map((file) => ({
+            filename: file.filename,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+            messageId: createMessage.id,
+        }));
+
+        let createFiles = [];
+        for (let i = 0; i < files.length; i++) {
+            const file = await prisma.file.create({
+                data: files[i],
+            });
+            createFiles.push(file);
+        } */
+// Express route to handle file uploads
+app.post("/upload", upload.array("files"), async (req, res) => {
+    try {
+        const files = req.files.map((file) => ({
+            filename: file.filename,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            size: file.size,
+        }));
+
+        const createdMessage = await prisma.message.create({
+            data: {
+                title,
+                description,
+                files: {
+                    create: files,
+                },
+            },
+            include: {
+                files: true,
+            },
+        });
+
+        // Emit file details to all connected sockets
+        io.emit("get-files", {
+            status: "success",
+            data: files,
+            message: "Files uploaded successfully!",
+        });
+
+        res.status(200).json({
+            status: "success",
+            data: createdMessage,
+        });
+    } catch (error) {
+        console.error("Error uploading files:", error);
+
+        io.emit("get-files", {
+            status: "error",
+            message: "Failed to upload files!",
+            error,
+        });
+
+        res.status(500).json({
+            status: "error",
+            message: "Failed to upload files!",
+            error,
+        });
+    }
+});
+
+    // console.log(files);
+    /* const [openMessages, setOpenMessages] = useState<string[]>([]);
+    const [message, setMessage] = useState<string>("");
+
+    function submitHandler() {
+        window.socket.emit("insert-message", { message });
+    }
+
+    useEffect(() => {
+        const handleOpen = (text: string) => {
+            setOpenMessages((prevMessages) => [...prevMessages, text]);
+        };
+
+        const handleMessage = (data: any) => {
+            console.log(data);
+            setOpenMessages((prevMessages) => [
+                ...prevMessages,
+                data?.description,
+            ]);
+        };
+
+        window.socket.on("open", handleOpen);
+        window.socket.on("get-message", handleMessage);
+
+        // Cleanup event listeners on component unmount
+        return () => {
+            window.socket.off("open", handleOpen);
+            window.socket.off("get-message", handleMessage);
+        };
+    }, []);
+
+    const images: string[] = [
+        "http://192.168.0.58:9000/images/add-conversation.jpg",
+        "http://192.168.0.58:9000/images/add-pin-message.jpg",
+        "http://192.168.0.58:9000/images/Add-User.jpg",
+        "http://192.168.0.58:9000/images/Edit-and-delete-user.jpg",
+        "http://192.168.0.58:9000/images/Extension-Unpach.jpg",
+        "http://192.168.0.58:9000/images/menu-button-identity.jpg",
+        "http://192.168.0.58:9000/images/send-message.jpg",
+        "http://192.168.0.58:9000/images/Show-Pin-Message.jpg",
+    ]; */
+
+
+    // const handleDownload = async () => {
+    //     const response = await fetch(`http://192.168.0.57:9000/download/`, {
+    //         body: JSON.stringify({ filename: path + filename }),
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //     });
+
+    //     console.log(await response.text());
+
+    // const link = document.createElement("a");
+    // link.target = "_blank";
+    // link.href = window.apiUrl + path + filename;
+    // link.download = filename;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // };
+// makeFile(path.join(__dirname, "client/utils/ApiAddress.js"));
+// makeFile(
+//     path.join(__dirname, "client/index.html"),
+//     `<!DOCTYPE html>\n<html lang="en">\n\t<head>\n\t\t<meta charset="UTF-8" />\n\t\t<link rel="icon" type="image/svg+xml" href="/vite.svg" />\n\t\t<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n\t\t<title>Vite + React + TS</title>\n\t</head>\n\t<body>\n\t\t<div id="root"></div>\n\t\t<script src="/socket.io-client.js"></script>\n\t\t<script>\n\t\t\tvar socket = io('${url()}');\n\t\t\tvar apiUrl = '${url()}';\n\t\t</script>\n\t\t<script type="module" src="/src/main.tsx"></script>\n\t</body>\n</html>`
+// );
